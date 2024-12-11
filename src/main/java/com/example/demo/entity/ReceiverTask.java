@@ -16,7 +16,7 @@ public class ReceiverTask<T> extends BaseTask<T>{
                 //if(super.getIsActive()){
                     //Item<T> item = super.queue.take(); // this waits // this causes thread pool to get stuck if consumer tasks get the threads when queue size = 0
                     Item<T> item = super.queue.poll(0, TimeUnit.MILLISECONDS);
-                    System.out.println("Thread " + super.getThreadId() + " consumed: " + item);
+                    System.out.println(super.toString() + " consumed: " + item);
                     //Thread.sleep(1000); // Simulate delay
                 //}
             //}

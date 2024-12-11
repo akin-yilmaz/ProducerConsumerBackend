@@ -23,7 +23,7 @@ public class SenderTask<T> extends BaseTask<T>{
                     Item<T> item = factory.get();  // Create a new instance of Item<T>
                     super.queue.offer(item); // it does not wait if q is full.
                     //super.queue.put(item); // it waits if q is full.
-                    System.out.println("Thread " + super.getThreadId() + " produced: " + item);
+                    System.out.println(super.toString() + " produced: " + item);
                     //Thread.sleep(1000); // Simulate delay
                 //}
             //}
