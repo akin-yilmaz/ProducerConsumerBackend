@@ -16,8 +16,6 @@ public class ThreadServiceImpl implements ThreadService<String>{
 
     private BlockingQueue<Item<String>> queue; // shared resource by custom created threads
     private Map<Long, BaseTask<String>> taskMap;
-    //private Map<Long, BaseTask> senderTaskMap; // Shared resource by each HTTP request
-    //private Map<Long, BaseTask> receiverTaskMap; // Shared resource by each HTTP request
     //private final ScheduledExecutorService scheduler; // thread safe
     private final ThreadPoolExecutor executor; // thread safe
 
@@ -29,7 +27,7 @@ public class ThreadServiceImpl implements ThreadService<String>{
 
         this.queue = new LinkedBlockingQueue<>();
         this.taskMap = new ConcurrentHashMap<>(); // thread safe
-        this.executor = executor;
+        this.executor = executor; // thread safe
     }
 
     //@Scheduled(fixedRate = 1000) // 1000 ms = 1 second
@@ -47,8 +45,6 @@ public class ThreadServiceImpl implements ThreadService<String>{
                     this.executor.execute(task);
                 }
             }
-
-
 
         }
         catch (Exception e){
@@ -98,16 +94,17 @@ public class ThreadServiceImpl implements ThreadService<String>{
             Supplier<Item<String>> supplier = () -> new Item<>("Item");
 
             //BaseThread<String> newThread;
+            BaseTask<String> newTask;
 
             for(int i = 0; i < tasks.size(); i++){
 
                 Boolean isSender = (Boolean) tasks.get(i).get("isSender");
-                System.out.println(isSender);
+                //System.out.println(isSender);
                 Boolean isActive = (Boolean) tasks.get(i).get("isActive");
-                System.out.println(isActive);
+                //System.out.println(isActive);
                 Integer priority = Integer.parseInt((String) tasks.get(i).get("priority"));
-                System.out.println(priority);
-                BaseTask<String> newTask = isSender ?
+                //System.out.println(priority);
+                newTask = isSender ?
                         new SenderTask<>(this.queue, supplier, isActive, priority) :
                         new ReceiverTask<>(this.queue, isActive, priority);
 
