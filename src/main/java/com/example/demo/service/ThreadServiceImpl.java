@@ -12,7 +12,7 @@ import java.util.concurrent.*;
 import java.util.function.Supplier;
 
 @Service
-public class ThreadServiceImpl implements ThreadService{
+public class ThreadServiceImpl implements ThreadService<String>{
 
     private BlockingQueue<Item<String>> queue; // shared resource by custom created threads
     private Map<Long, BaseTask<String>> taskMap;
@@ -56,7 +56,7 @@ public class ThreadServiceImpl implements ThreadService{
         }
 
     }
-
+    /*
     @Override
     public void createTasks(Integer countSender, Integer prioritySender, Boolean isActiveSender, Integer countReceiver, Integer priorityReceiver, Boolean isActiveReceiver) {
 
@@ -78,6 +78,39 @@ public class ThreadServiceImpl implements ThreadService{
             for(int i = 0; i < countReceiver; i++){
 
                 newTask = new ReceiverTask<>(this.queue, isActiveReceiver, priorityReceiver);
+                this.taskMap.put(newTask.getThreadId(), newTask);
+
+                //this.scheduler.scheduleWithFixedDelay(newThread, 0, delayTime, TimeUnit.MILLISECONDS);
+                //this.executor.execute(newTask);
+            }
+
+        }
+        catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+
+    }
+    */
+    @Override
+    public void createTasks(List<Map<String, Object>> tasks) {
+
+        try {
+            Supplier<Item<String>> supplier = () -> new Item<>("Item");
+
+            //BaseThread<String> newThread;
+
+            for(int i = 0; i < tasks.size(); i++){
+
+                Boolean isSender = (Boolean) tasks.get(i).get("isSender");
+                System.out.println(isSender);
+                Boolean isActive = (Boolean) tasks.get(i).get("isActive");
+                System.out.println(isActive);
+                Integer priority = Integer.parseInt((String) tasks.get(i).get("priority"));
+                System.out.println(priority);
+                BaseTask<String> newTask = isSender ?
+                        new SenderTask<>(this.queue, supplier, isActive, priority) :
+                        new ReceiverTask<>(this.queue, isActive, priority);
+
                 this.taskMap.put(newTask.getThreadId(), newTask);
 
                 //this.scheduler.scheduleWithFixedDelay(newThread, 0, delayTime, TimeUnit.MILLISECONDS);
@@ -141,7 +174,7 @@ public class ThreadServiceImpl implements ThreadService{
     public Map<String, Object> getTasks() {
         PriorityBlockingQueue<BaseTask<String>> pBQ = new PriorityBlockingQueue<>();
         pBQ.addAll(this.taskMap.values()); // this does not work as intended
-        System.out.println("pBQ: " + pBQ);
+        //System.out.println("pBQ: " + pBQ);
         return Map.of("Threads", pBQ);
     }
 

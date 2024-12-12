@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -30,6 +31,7 @@ public class ThreadController {
         System.out.println("In constructor: " + getClass().getSimpleName());
         this.threadService = threadService;
     }
+    /*
     // form-data
     @PostMapping()
     @Operation(
@@ -50,6 +52,28 @@ public class ThreadController {
         this.threadService.createTasks(countSender, prioritySender, isActiveSender, countReceiver, priorityReceiver, isActiveReceiver);
         return new ResponseEntity<>("countSender: " + countSender + " prioritySender: " + prioritySender + " isActiveSender: " + isActiveSender +
                                 "\ncountReceiver: " + countReceiver + " priorityReceiver: " + priorityReceiver + " isActiveReceiver: " + isActiveReceiver, HttpStatus.OK);
+    }
+    */
+    // json
+    @PostMapping()
+    @Operation(
+            summary = "Creates tasks that will be picked up by threads lying in the thread-pool. " +
+                    "Extra Info: Thread Pool's task queue is a priority queue based on task's priorities." +
+                    "Extra info: Thread pool runs each second.",
+            description = "Waits a RequestBody formatted json. {waitingThreads: Collection}" +
+                    "Collection element should be in the format {isSender: true/false, isActive: true/false, priority: 5}" +
+                    "HTTP status of the response is important, body part is trivial." +
+                    "Could have returned the tasks. See GET /threads"
+    )
+    public ResponseEntity<String> createThreads(@RequestBody Map<String, List<Map<String, Object>>> requestBody){
+        //System.out.println(requestBody);
+        try {
+            this.threadService.createTasks(requestBody.get("waitingThreads"));
+            return new ResponseEntity<>("successful", HttpStatus.OK);
+        }
+        catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @PutMapping("/activity")
